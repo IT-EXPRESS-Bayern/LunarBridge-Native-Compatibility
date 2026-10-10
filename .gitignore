@@ -3,6 +3,7 @@
 [Pp][Ll][Aa][Nn].[Mm][Dd]
 **/[Rr][Ee][Pp][Oo][Rr][Tt][Ss]/
 *.json
+!docs/CI_VALIDATION.json
 **/native-compatibility.json
 **/runtime-smoke.json
 **/.compatibility-*.tmp

@@ -60,3 +60,5 @@ CI-Lauf. Umfang und Primärquellen stehen in
 [NATIVE_COMPATIBILITY.md](docs/NATIVE_COMPATIBILITY.md).
 
 GPL-3.0-only; kommerzielle Nutzung unter den Bedingungen von [LICENSE](LICENSE).
+
+Der erfolgreiche Online-Prüflauf und sein exakter Quellstand sind in [docs/CI_VALIDATION.json](docs/CI_VALIDATION.json) festgehalten. Spätere Dokumentations-Commits sind davon getrennt; dieser CI-Lauf ist kein Gerätefunktionstest auf dem Samsung.
