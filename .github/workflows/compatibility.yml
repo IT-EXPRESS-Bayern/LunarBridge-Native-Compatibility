@@ -1,0 +1,65 @@
+name: Compatibility checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    name: Software checks (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            python: python
+          - os: macos-26-intel
+            python: python3
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - name: Check Python runtime
+        shell: bash
+        run: ${{ matrix.python }} -c 'import sys; assert sys.version_info >= (3, 10), "Python 3.10 or newer required"'
+      - name: Run software boundary tests
+        shell: bash
+        run: ${{ matrix.python }} tests/test_native_compatibility.py
+      - name: Read CI macOS host APIs
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          python3 tools/native_compatibility.py --out reports/runtime-smoke.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('reports/runtime-smoke.json').read_text())
+          assert report['state'] == 'macos-runtime-observed'
+          assert report['app_inventory_scanned'] is False
+          assert report['native_target_boot_verified'] is False
+          assert report['target_hardware_identity_verified'] is False
+          assert report['gpu_execution_verified'] is False
+          assert report['media_execution_verified'] is False
+          assert report['firmware_secure_boot']['state'] == 'unverified'
+          assert report['metal']['state'] in ('api_reported', 'no_device_reported')
+          assert report['video_decode']['state'] == 'api_reported'
+          report['evidence_context'] = 'github-hosted-ci; not the Samsung target device'
+          Path('reports/runtime-smoke.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Upload sanitized results
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: compatibility-${{ matrix.os }}
+          path: |
+            tests/native-compatibility-test-report.json
+            reports/runtime-smoke.json
+          if-no-files-found: warn
+          retention-days: 14

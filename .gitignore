@@ -1,0 +1,15 @@
+# Local reports, private working lists and Python cache
+[Tt][Aa][Ss][Kk][Ss].[Mm][Dd]
+[Pp][Ll][Aa][Nn].[Mm][Dd]
+**/[Rr][Ee][Pp][Oo][Rr][Tt][Ss]/
+*.json
+**/native-compatibility.json
+**/runtime-smoke.json
+**/.compatibility-*.tmp
+**/*-test-report.json
+__pycache__/
+*.pyc
+.env
+*.key
+*.p12
+*.pfx
