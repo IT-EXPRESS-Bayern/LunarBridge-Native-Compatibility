@@ -235,16 +235,22 @@ class GraphicsInterfaceTests(unittest.TestCase):
 
     def test_cli_write_failure_preserves_existing_report_and_prints_no_private_path(self):
         selected = self.file(macho())
-        destination = self.root / 'private-user-report.json'
-        destination.write_bytes(b'original report')
-        stderr, stdout = io.StringIO(), io.StringIO()
-        with mock.patch('native_compatibility.os.replace', side_effect=OSError(str(destination))), \
-             redirect_stderr(stderr), redirect_stdout(stdout):
-            status = checker.main(['--consumer', str(selected), '--out', str(destination)])
-        self.assertEqual(status, 3)
-        self.assertEqual(destination.read_bytes(), b'original report')
-        self.assertNotIn('private', stderr.getvalue() + stdout.getvalue())
-        self.assertNotIn('Traceback', stderr.getvalue())
+        # macOS resolves its default temporary directory below /private/var,
+        # where report writes are deliberately forbidden. Exercise the atomic
+        # write error using an allowed workspace destination on both platforms.
+        with tempfile.TemporaryDirectory(prefix='.interface-output-', dir=ROOT) as output_root:
+            destination = Path(output_root) / 'private-user-report.json'
+            destination.write_bytes(b'original report')
+            stderr, stdout = io.StringIO(), io.StringIO()
+            with mock.patch('native_compatibility.os.replace', side_effect=OSError(str(destination))), \
+                 redirect_stderr(stderr), redirect_stdout(stdout):
+                status = checker.main(['--consumer', str(selected), '--out', str(destination)])
+            self.assertEqual(status, 3)
+            self.assertEqual(destination.read_bytes(), b'original report')
+            self.assertEqual(list(Path(output_root).glob('.compatibility-*.tmp')), [])
+            self.assertNotIn(str(destination), stderr.getvalue() + stdout.getvalue())
+            self.assertNotIn('private', stderr.getvalue() + stdout.getvalue())
+            self.assertNotIn('Traceback', stderr.getvalue())
 
     def test_published_source_export_contract_does_not_certify_delivered_binary_exports(self):
         consumer = self.file(macho(imports=[checker.COPY_MAPPER]))
