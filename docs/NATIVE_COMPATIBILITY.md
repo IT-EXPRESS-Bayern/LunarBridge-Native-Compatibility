@@ -109,6 +109,12 @@ Host-API-Abfragen bestätigen; die Samsung-Geräteabnahme bliebe offen.
 
 ## Primärquellen
 
+Der neue lokale Symbolprüfer und die konkreten öffentlichen bzw. noch fehlenden
+Grafikanschlüsse sind in [GRAPHICS_INTERFACE.md](GRAPHICS_INTERFACE.md)
+dokumentiert. Seine 24 Tests kommen zu den oben beschriebenen 30 Tests hinzu.
+Statische Windows-Dateianalyse und native macOS-API-Abfrage haben getrennte
+Berichtszustände; die Windows-Dateianalyse ist keine native Runtime-Probe.
+
 - [Apple: Metal-Unterstützung](https://support.apple.com/en-us/102894)
 - [Apple: Intel-Apps und Rosetta](https://support.apple.com/en-us/102527)
 - [Apple: 32-Bit-App-Unterstützung](https://support.apple.com/en-us/103076)

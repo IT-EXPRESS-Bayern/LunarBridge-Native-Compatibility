@@ -28,7 +28,7 @@ erhalten einen schon vorhandenen Bericht. Das Schreiben dieser ausdrücklich
 ausgewählten Berichtsdatei und ihrer temporären Datei ist die einzige
 beabsichtigte Dateiveränderung.
 
-Unter Windows entsteht ein Bericht mit `unsupported-platform`; der Prozess
+Unter Windows erstellt `native_compatibility.py` einen Bericht mit `unsupported-platform`; der Prozess
 endet mit Code 2 und führt keine macOS- oder App-Prüfung aus. Code 0 auf macOS
 bedeutet, dass der Bericht erstellt wurde. Er bestätigt keine vollständige
 Kompatibilität. Ungültige CLI-Eingaben enden ebenfalls mit Code 2. Fehler beim
@@ -42,12 +42,13 @@ kann auch ohne qualifizierte Grafikbeschleunigung vorhanden sein.
 `native_target_boot_verified`, `gpu_execution_verified` und der Firmware-
 Secure-Boot-Nachweis bleiben daher ausdrücklich unbestätigt.
 
-30 Tests prüfen Windows-Plattformschutz, synthetische Mach-O-Dateien,
+30 Softwaretests prüfen Windows-Plattformschutz, synthetische Mach-O-Dateien,
 Architektur-/Versionsgrenzen, Spezialdateien, Datensparsamkeit und Fehler beim
 atomaren Schreiben:
 
 ```sh
 python3 tests/test_native_compatibility.py
+python3 tests/test_graphics_interfaces.py
 ```
 
 Diese Tests sind keine Geräteprobe. Auf dem Samsung-Rechner läuft derzeit noch
@@ -60,5 +61,24 @@ CI-Lauf. Umfang und Primärquellen stehen in
 [NATIVE_COMPATIBILITY.md](docs/NATIVE_COMPATIBILITY.md).
 
 GPL-3.0-only; kommerzielle Nutzung unter den Bedingungen von [LICENSE](LICENSE).
+
+Ein zusätzlicher rein lesender Symbolprüfer untersucht ausdrücklich ausgewählte
+Mach-O-Verbraucher und Provider sowie ausgewählte XNU-Exportlisten. Er läuft
+auch unter Windows und unterscheidet Binärexporte, veröffentlichte Quellverträge
+und weiterhin unbestätigte Kext-Ladbarkeit. 24 zusätzliche Tests prüfen diesen
+Anschluss, malformed Symbol-/Exportdaten, Dateigrenzen und Datensparsamkeit.
+
+```sh
+python3 tools/graphics_interfaces.py --consumer "/Selected/Consumer" --provider "/Selected/ExtractedProvider" --out reports/interfaces.json
+python3 tools/graphics_interfaces.py --consumer "/Selected/Consumer" --export-list "/Selected/IOKit.exports" --out reports/interfaces.json
+```
+
+Die konkrete Intel-Tahoe-Portierungsgrundlage, freie Schnittstellen, noch
+fehlende private Grafik-ABI und lokale Belege echter vorhandener Binärdateien
+stehen in [GRAPHICS_INTERFACE.md](docs/GRAPHICS_INTERFACE.md). Diese Erweiterung
+registriert keinen Metal-Treiber und führt ausgewählte Programme nicht aus.
+Die neue Mac-CI prüft dafür zusätzlich einen selbst kompilierten öffentlichen
+Importfall. Das frühere CI-Ergebnis unten gilt weiterhin nur für dessen
+angegebenen Quellstand.
 
 Der erfolgreiche Online-Prüflauf und sein exakter Quellstand sind in [docs/CI_VALIDATION.json](docs/CI_VALIDATION.json) festgehalten. Spätere Dokumentations-Commits sind davon getrennt; dieser CI-Lauf ist kein Gerätefunktionstest auf dem Samsung.

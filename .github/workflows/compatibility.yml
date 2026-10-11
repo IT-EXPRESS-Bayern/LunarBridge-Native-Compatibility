@@ -31,7 +31,31 @@ jobs:
         run: ${{ matrix.python }} -c 'import sys; assert sys.version_info >= (3, 10), "Python 3.10 or newer required"'
       - name: Run software boundary tests
         shell: bash
-        run: ${{ matrix.python }} tests/test_native_compatibility.py
+        run: |
+          ${{ matrix.python }} tests/test_native_compatibility.py
+          ${{ matrix.python }} tests/test_graphics_interfaces.py
+      - name: Compile and inspect public graphics imports
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p reports
+          clang -arch x86_64 tests/fixtures/interface_imports.m -framework Foundation -framework Metal -framework IOSurface -framework IOKit -o reports/interface-imports
+          python3 tools/graphics_interfaces.py --consumer reports/interface-imports --out reports/symbol-smoke.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('reports/symbol-smoke.json').read_text())
+          item = report['files'][0]['slices'][0]
+          assert item['architecture'] == 'x86_64'
+          assert item['kind'] == 'executable'
+          for family in ('IOSurface', 'Metal', 'IOKitRegistry'):
+              assert item['interfaces'][family]['imports_observed'] >= 1
+          assert report['kext_loadability_verified'] is False
+          assert report['function_signature_abi_verified'] is False
+          assert report['gpu_execution_verified'] is False
+          report['evidence_context'] = 'github-hosted-ci; compile-only public import fixture; not the Samsung target device'
+          Path('reports/symbol-smoke.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+          PY
       - name: Read CI macOS host APIs
         if: runner.os == 'macOS'
         shell: bash
@@ -60,6 +84,8 @@ jobs:
           name: compatibility-${{ matrix.os }}
           path: |
             tests/native-compatibility-test-report.json
+            tests/graphics-interface-test-report.json
             reports/runtime-smoke.json
+            reports/symbol-smoke.json
           if-no-files-found: warn
           retention-days: 14
