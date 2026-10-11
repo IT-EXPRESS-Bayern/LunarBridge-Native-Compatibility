@@ -156,6 +156,7 @@ Lokale Prüfung echter vorhandener CI-Binärdateien, ohne Ausführung:
 | Datei/Quellstand | SHA256 | Tatsächliches Symbolergebnis |
 | --- | --- | --- |
 | LunarBridge Kext, cb47a2de119440731a44a14105df4a4192613123 | `8c81f17be10d9e32a87de31f83f66b0bec873623b5a8fc4c8da9ae283d1e47b7` | x86_64, MH_KEXT_BUNDLE, 342 Imports; 145 IOService, 37 IOUserClient, 1 IOBufferMemoryDescriptor. Keine beobachteten IOFramebuffer-/IOAccel-/Mapper-/DMA-Anschlüsse. Dieses Artefakt liegt vor dem neuen DMA-Anschluss. |
+| LunarBridge Kext, 112bb25c2050c9b95e1130e65a8b11ee8962d865 | `afd20837ae075b56e651aa77287f47934ed71e46389e0aba566161be249b271d` | x86_64, MH_KEXT_BUNDLE, 347 Imports; zusätzlich zwei IODMACommand-Importnamen und copyMapperForDevice. Alle drei stehen in den ausgewählten Tahoe-26.0-XNU-Verträgen. Das bestätigt weder den ausgelieferten Kernel-Provider noch ABI, IOMMU-Funktion oder Kext-Laden. |
 | hdr-readback | `34099fc8758290d800c9cc55cd5795d729c919da52ee8a740c062ca149c3f110` | x86_64, MH_EXECUTE, 163 Imports, darunter MTLCopyAllDevices. |
 | lb-camera-probe | `17ae15df607034dd4e4ff5f22068be94f47807fb849e58852a50c4998e372e93` | x86_64, MH_EXECUTE, 120 Imports. Kein Metal-C-Import in der untersuchten Tabelle. |
 
@@ -168,11 +169,13 @@ korrekten Ersatz schaffen.
 [Apple XNU: Vtable-Patching](https://github.com/apple-oss-distributions/xnu/blob/xnu-12377.1.9/libkern/kxld/kxld_vtable.c).
 
 24 neue Grenz-/Privacytests und die vorhandenen 30 Softwaretests bestehen
-lokal unter Windows. Die erweiterte Mac-CI kompiliert eine eigene kleine
-Metal-/IOSurface-/IOKit-Importdatei und prüft das erzeugte Mach-O, ohne das
-Programm zu starten. Der erfolgreiche Online-Lauf des bisherigen 30-Test-
-Stands qualifiziert diese neue Erweiterung noch nicht. Das neue CI-Ergebnis
-und die gesamte Samsung-Geräteprobe sind bis zu deren Ausführung offen.
+lokal unter Windows und im [neuen Windows-/Intel-macOS-CI-Lauf](https://github.com/IT-EXPRESS-Bayern/LunarBridge-Native-Compatibility/actions/runs/38110863093)
+am exakten Quellstand `fce181ee4f61e41d786765fe618c17c05bd52324`.
+Die Mac-CI kompiliert eine eigene kleine Metal-/IOSurface-/IOKit-Importdatei
+und prüft das erzeugte x86_64-Mach-O, ohne das Programm zu starten. Ihr
+heruntergeladenes Artefakt wurde gegen den von GitHub gelieferten SHA256-Wert
+geprüft; beide Testberichte und die drei öffentlichen Importfamilien sind
+vorhanden. Die gesamte Samsung-Geräteprobe bleibt offen.
 
 ## Lade- und Secure-Boot-Voraussetzungen vor Hardwareausführung
 
@@ -191,8 +194,8 @@ diesen fertigen Zustand nicht. Der Softwareprüfer setzt keine Policy um und
 empfiehlt keine Deaktivierung von Firmware Secure Boot.
 [OpenCore: UEFI Secure Boot und SecureBootModel](https://github.com/acidanthera/OpenCorePkg/blob/master/Docs/Configuration.tex).
 
-Die nächsten Portierungspunkte sind damit konkret: den neuen DMA-Kext gegen
-die veröffentlichten und anschließend realen Intel-Tahoe-Provider prüfen;
+Die nächsten Portierungspunkte sind damit konkret: nach dem statischen
+XNU-Vertragsvergleich den neuen DMA-Kext gegen reale Intel-Tahoe-Provider prüfen;
 native Lade-/Mapper-Lebensdauer belegen; die versionsgenauen IOAccel-
 UserClient-/Surface-Verträge erheben; erst danach Metal-Geräteauswahl,
 Shaderpfad und Desktop-Übergabe implementieren und ausführen. Dieses Modul
