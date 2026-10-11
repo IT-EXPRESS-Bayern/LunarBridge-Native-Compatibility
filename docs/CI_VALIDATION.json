@@ -1,11 +1,11 @@
 {
   "repository_url": "https://github.com/IT-EXPRESS-Bayern/LunarBridge-Native-Compatibility",
-  "source_commit": "54473d3c6e5be4d5d8f10550ec2b398e97742503",
-  "workflow_run_id": 38090454912,
-  "workflow_url": "https://github.com/IT-EXPRESS-Bayern/LunarBridge-Native-Compatibility/actions/runs/38090454912",
+  "source_commit": "fce181ee4f61e41d786765fe618c17c05bd52324",
+  "workflow_run_id": 38110863093,
+  "workflow_url": "https://github.com/IT-EXPRESS-Bayern/LunarBridge-Native-Compatibility/actions/runs/38110863093",
   "status": "completed",
   "conclusion": "success",
-  "local_distinct_tests_passed": 30,
+  "local_distinct_tests_passed": 54,
   "native_target_hardware_tests": 0,
   "verified_on": "2026-10-11",
   "scope": "Hosted workflow and exact source commit; no Samsung target test.",
@@ -14,12 +14,12 @@
   "actual_gpu_execution_or_metal_implemented": false,
   "artifact_metadata": [
     {
-      "id": 11684155032,
+      "id": 11691603959,
       "name": "compatibility-macos-26-intel",
-      "bytes": 1446,
-      "sha256": "740ccacbb7a06932ef2dae914e3e4dd22654364ec305f1ffe9da9030ba664d42",
-      "workflow_run_id": 38090454912,
-      "source_commit": "54473d3c6e5be4d5d8f10550ec2b398e97742503"
+      "bytes": 3148,
+      "sha256": "0c768b118922b9887c50c926a260010616972186a7ae8bbeb3261204d666de58",
+      "workflow_run_id": 38110863093,
+      "source_commit": "fce181ee4f61e41d786765fe618c17c05bd52324"
     }
   ]
 }
